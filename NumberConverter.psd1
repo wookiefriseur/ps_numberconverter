@@ -1,22 +1,22 @@
 @{
 
     RootModule        = 'NumberConverter.psm1'
-    ModuleVersion     = '1.0.0'
+    ModuleVersion     = '1.0.1'
     Description       = 'Convert and format numbers to and from widely used bases: binary, octal, hexadecimal'
 
     GUID              = '5fa010c9-dc18-466b-9db9-383e24e6f949'
 
     Author            = 'Matthäus Falkowski'
-    Copyright         = 'Copyright (c) 2020 Matthäus Falkowski. MIT License.'
+    Copyright         = 'Copyright (c) 2022 Matthäus Falkowski. MIT License.'
 
     # Exports
     FunctionsToExport = @(
-        "ConvertFrom-Binary",
-        "ConvertTo-Binary",
-        "ConvertFrom-Octal",
-        "ConvertTo-Octal",
-        "ConvertFrom-Hexadecimal",
-        "ConvertTo-Hexadecimal"
+        'ConvertFrom-Binary',
+        'ConvertTo-Binary',
+        'ConvertFrom-Octal',
+        'ConvertTo-Octal',
+        'ConvertFrom-Hexadecimal',
+        'ConvertTo-Hexadecimal'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()
@@ -26,8 +26,9 @@
 
         PSData = @{
 
-            Tags       = @("numbers", "converter", "binary", "octal", "hexadecimal")
-            LicenseUri = "https://github.com/wookiefriseur/valor-modulis/blob/master/LICENSE.md"
+            Tags       = @('numbers', 'converter', 'binary', 'octal', 'hexadecimal')
+            ProjectUri = 'https://github.com/wookiefriseur/ps_numberconverter/'
+            LicenseUri = 'https://github.com/wookiefriseur/valor-modulis/blob/master/LICENSE.md'
         }
 
     }
