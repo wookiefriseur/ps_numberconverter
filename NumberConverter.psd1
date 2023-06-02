@@ -1,7 +1,7 @@
 @{
 
     RootModule        = 'NumberConverter.psm1'
-    ModuleVersion     = '1.0.1'
+    ModuleVersion     = '1.0.2'
     Description       = 'Convert and format numbers to and from widely used bases: binary, octal, hexadecimal'
 
     GUID              = '5fa010c9-dc18-466b-9db9-383e24e6f949'
