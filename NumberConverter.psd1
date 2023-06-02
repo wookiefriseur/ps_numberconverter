@@ -28,7 +28,7 @@
 
             Tags       = @('numbers', 'converter', 'binary', 'octal', 'hexadecimal')
             ProjectUri = 'https://github.com/wookiefriseur/ps_numberconverter/'
-            LicenseUri = 'https://github.com/wookiefriseur/valor-modulis/blob/master/LICENSE.md'
+            LicenseUri = 'https://github.com/wookiefriseur/valor-modulis/blob/main/LICENSE.md'
         }
 
     }
