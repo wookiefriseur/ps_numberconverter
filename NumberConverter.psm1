@@ -31,36 +31,38 @@
     @("0010 1010", 101010, 0b101010) | ConvertFrom-Binary
 #>
 function ConvertFrom-Binary {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
-        [System.String]
-        $Value,
-        # Target format of the conversion
-        [ValidateSet("Int16", "Int32", "Int64", "UInt16", "UInt32", "UInt64")]
-        [System.String]
-        $Format = "UInt64"
-    )
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
+    [System.Object]
+    $Value,
+    # Target format of the conversion
+    [ValidateSet("Int16", "Int32", "Int64", "UInt16", "UInt32", "UInt64")]
+    [System.String]
+    $Format = "UInt64"
+  )
 
-    begin {
+  begin {
 
-        function getBinaryString {
-            return $Value -replace "(0b)|\s", ""
-        }
-
-        function toInt {
-            return [System.Convert]::"To$Format"( (getBinaryString), 2)
-        }
-
+    function getBinaryString {
+      if ($Value -is [string]) {
+        return $Value -replace "(0b)|\s", ""
+      }
+      # if we get a 0b01 number instead of a string
+      else {
+        return [System.Convert]::ToString($Value, 2)
+      }
     }
 
-    process {
-
-        toInt
+    function toInt {
+      return [System.Convert]::"To$Format"( (getBinaryString), 2)
     }
 
-    end {
-    }
+  }
+
+  process { toInt }
+
+  end {}
 }
 
 
@@ -73,62 +75,64 @@ function ConvertFrom-Binary {
 
 .EXAMPLE
     ConvertTo-Binary -Value 42 -Prefixed -NoGrouping
-
-.EXAMPLE
-    ConvertTo-Binary -Value 42
+    # Returns 0b101010
 
 .EXAMPLE
     ConvertTo-Binary 42
+    # Returns 0010 1010
+
+.EXAMPLE
+    ConvertTo-Binary -Value 42
+    # Explicit value parameter
 
 .EXAMPLE
     ConvertTo-Binary 0d42
+    # Support for prefixed values
 
 .EXAMPLE
     42 | ConvertTo-Binary
+    # Pass single item from pipeline
 
 .EXAMPLE
     @(42, -42, "0d42") | ConvertTo-Binary
+    # Process array from pipeline
 #>
 function ConvertTo-Binary {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
-        [System.String]
-        $Value,
-        # Activate prefix '0b'
-        [switch]
-        [bool]
-        $Prefixed,
-        # Disable spaces between groups of 4
-        [switch]
-        [bool]
-        $NoGrouping
-    )
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
+    [System.String]
+    $Value,
+    # Activate prefix '0b'
+    [switch]
+    [bool]
+    $Prefixed,
+    # Disable spaces between groups of 4
+    [switch]
+    [bool]
+    $NoGrouping
+  )
 
-    begin {
+  begin {
 
-        function toBinaryString {
-            $result = [System.Convert]::ToString( (getDecimal $Value), 2)
+    function toBinaryString {
+      $result = [System.Convert]::ToString( (getDecimal $Value), 2)
 
-            if (-Not $NoGrouping) {
-                $groups = ($result.PadLeft([decimal]::Ceiling($result.Length / 4) * 4, "0") -split "(\d{4})")
-                $result = ($groups | Join-String -Separator " ")
-            }
+      if (-Not $NoGrouping) {
+        $groups = ($result.PadLeft([decimal]::Ceiling($result.Length / 4) * 4, "0") -split "(?<=\G\d{4})")
+        $result = ($groups | Join-String -Separator " ")
+      }
 
-            if ($Prefixed) { $result = "0b$result" }
+      if ($Prefixed) { $result = "0b$result" }
 
-            return $result
-        }
-
+      return $result.Trim()
     }
 
-    process {
+  }
 
-        toBinaryString
-    }
+  process { toBinaryString }
 
-    end {
-    }
+  end { }
 }
 
 <#
@@ -164,36 +168,32 @@ function ConvertTo-Binary {
     @(052, 52, "0o052") | ConvertFrom-Octal
 #>
 function ConvertFrom-Octal {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
-        [System.String]
-        $Value,
-        # Target format of the conversion
-        [ValidateSet("Int16", "Int32", "Int64", "UInt16", "UInt32", "UInt64")]
-        [System.String]
-        $Format = "UInt64"
-    )
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
+    [System.String]
+    $Value,
+    # Target format of the conversion
+    [ValidateSet("Int16", "Int32", "Int64", "UInt16", "UInt32", "UInt64")]
+    [System.String]
+    $Format = "UInt64"
+  )
 
-    begin {
+  begin {
 
-        function getOctalString {
-            return $Value -replace "(0o)|\s", ""
-        }
-
-        function toInt {
-            return [System.Convert]::"To$Format"( (getOctalString), 8)
-        }
-
+    function getOctalString {
+      return $Value -replace "(0o)|\s", ""
     }
 
-    process {
-
-        toInt
+    function toInt {
+      return [System.Convert]::"To$Format"( (getOctalString), 8)
     }
 
-    end {
-    }
+  }
+
+  process { toInt }
+
+  end { }
 }
 
 <#
@@ -222,45 +222,41 @@ function ConvertFrom-Octal {
     @("42", 42, "0d42") | ConvertTo-Octal
 #>
 function ConvertTo-Octal {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
-        [System.String]
-        $Value,
-        # Activate prefix '0o'
-        [switch]
-        [bool]
-        $Prefixed,
-        # Disable spaces between groups of 3
-        [switch]
-        [bool]
-        $NoGrouping
-    )
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
+    [System.String]
+    $Value,
+    # Activate prefix '0o'
+    [switch]
+    [bool]
+    $Prefixed,
+    # Disable spaces between groups of 3
+    [switch]
+    [bool]
+    $NoGrouping
+  )
 
-    begin {
+  begin {
 
-        function toOctalString {
-            $result = [System.Convert]::ToString( (getDecimal $Value), 8)
+    function toOctalString {
+      $result = [System.Convert]::ToString( (getDecimal $Value), 8)
 
-            if (-Not $NoGrouping) {
-                $groups = ($result.PadLeft([decimal]::Ceiling($result.Length / 3) * 3, "0") -split "(\d{3})")
-                $result = ($groups | Join-String -Separator " ")
-            }
+      if (-Not $NoGrouping) {
+        $groups = ($result.PadLeft([decimal]::Ceiling($result.Length / 3) * 3, "0") -split "(?<=\G\d{3})")
+        $result = ($groups | Join-String -Separator " ")
+      }
 
-            if ($Prefixed) { $result = "0o$result" }
+      if ($Prefixed) { $result = "0o$result" }
 
-            return $result
-        }
-
+      return $result.Trim()
     }
 
-    process {
+  }
 
-        toOctalString
-    }
+  process { toOctalString }
 
-    end {
-    }
+  end { }
 }
 
 <#
@@ -296,36 +292,32 @@ function ConvertTo-Octal {
     @(2a, 0x2a, 2A) | ConvertFrom-Hexadecimal
 #>
 function ConvertFrom-Hexadecimal {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
-        [System.String]
-        $Value,
-        # Target format of the conversion
-        [ValidateSet("Int16", "Int32", "Int64", "UInt16", "UInt32", "UInt64")]
-        [System.String]
-        $Format = "UInt64"
-    )
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
+    [System.String]
+    $Value,
+    # Target format of the conversion
+    [ValidateSet("Int16", "Int32", "Int64", "UInt16", "UInt32", "UInt64")]
+    [System.String]
+    $Format = "UInt64"
+  )
 
-    begin {
+  begin {
 
-        function getHexadecimalString {
-            return ($Value -replace "(0x)|\s", "").ToLower()
-        }
-
-        function toInt {
-            return [System.Convert]::"To$Format"( (getHexadecimalString), 16)
-        }
-
+    function getHexadecimalString {
+      return ($Value -replace "(0x)|\s", "").ToLower()
     }
 
-    process {
-
-        toInt
+    function toInt {
+      return [System.Convert]::"To$Format"( (getHexadecimalString), 16)
     }
 
-    end {
-    }
+  }
+
+  process { toInt }
+
+  end { }
 }
 
 <#
@@ -354,55 +346,51 @@ function ConvertFrom-Hexadecimal {
     @("42", 42, "0d42") | ConvertTo-Hexadecimal
 #>
 function ConvertTo-Hexadecimal {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
-        [System.String]
-        $Value,
-        # Activate prefix '0o'
-        [switch]
-        [bool]
-        $Prefixed,
-        # Disable spaces between groups of 2
-        [switch]
-        [bool]
-        $NoGrouping,
-        # Enable uppercase for Hex-Letters
-        [switch]
-        [bool]
-        $Uppercase
-    )
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, Position = 1, ValueFromPipeline = $true)]
+    [System.String]
+    $Value,
+    # Activate prefix '0o'
+    [switch]
+    [bool]
+    $Prefixed,
+    # Disable spaces between groups of 2
+    [switch]
+    [bool]
+    $NoGrouping,
+    # Enable uppercase for Hex-Letters
+    [switch]
+    [bool]
+    $Uppercase
+  )
 
-    begin {
+  begin {
 
-        function toHexadecimalString {
-            $result = [System.Convert]::ToString( (getDecimal $Value), 16)
+    function toHexadecimalString {
+      $result = [System.Convert]::ToString( (getDecimal $Value), 16)
 
-            if (-Not $NoGrouping) {
-                $groups = ($result.PadLeft([decimal]::Ceiling($result.Length / 2) * 2, "0") -split "(\d{2})")
-                $result = ($groups | Join-String -Separator " ")
-            }
+      if (-Not $NoGrouping) {
+        $groups = ($result.PadLeft([decimal]::Ceiling($result.Length / 2) * 2, "0") -split "(\d{2})")
+        $result = ($groups | Join-String -Separator " ")
+      }
 
-            if($Uppercase) { $result = $result.ToUpper() }
+      if ($Uppercase) { $result = $result.ToUpper() }
 
-            if ($Prefixed) { $result = "0x$result" }
+      if ($Prefixed) { $result = "0x$result" }
 
-            return $result
-        }
-
+      return $result
     }
 
-    process {
+  }
 
-        toHexadecimalString
-    }
+  process { toHexadecimalString }
 
-    end {
-    }
+  end { }
 }
 
 
 <# Private helper functions for the module #>
 function getDecimal([string] $decimalString) {
-    return [System.Convert]::ToDecimal( ($decimalString -replace "0d", ""))
+  return [System.Convert]::ToDecimal( ($decimalString -replace "0d", ""))
 }
